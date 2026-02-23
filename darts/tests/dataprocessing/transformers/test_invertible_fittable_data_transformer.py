@@ -11,6 +11,7 @@ from darts.dataprocessing.transformers.fittable_data_transformer import (
 from darts.dataprocessing.transformers.invertible_data_transformer import (
     InvertibleDataTransformer,
 )
+from darts.typing import TimeSeriesLike
 from darts.utils.timeseries_generation import constant_timeseries
 
 
@@ -527,7 +528,7 @@ class TestGlobalFittableInvertibleDataTransformer:
 
         @staticmethod
         def ts_fit(
-            series: TimeSeries | Sequence[TimeSeries],
+            series: TimeSeriesLike,
             params: Mapping[str, Any],
             **kwargs,
         ):

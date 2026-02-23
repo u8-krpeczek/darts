@@ -15,6 +15,7 @@ from darts.dataprocessing.transformers.base_data_transformer import (
     component_masking,
 )
 from darts.logging import get_logger, raise_log
+from darts.typing import TimeSeriesLike
 from darts.utils import _build_tqdm_iterator, _parallel_apply
 
 logger = get_logger(__name__)
@@ -163,7 +164,7 @@ class FittableDataTransformer(BaseDataTransformer):
     @staticmethod
     @abstractmethod
     def ts_fit(
-        series: TimeSeries | Sequence[TimeSeries],
+        series: TimeSeriesLike,
         params: Mapping[str, Any],
         *args,
         **kwargs,
@@ -205,7 +206,7 @@ class FittableDataTransformer(BaseDataTransformer):
 
     def fit(
         self,
-        series: TimeSeries | Sequence[TimeSeries],
+        series: TimeSeriesLike,
         *args,
         component_mask: np.ndarray | None = None,
         **kwargs,
@@ -285,7 +286,7 @@ class FittableDataTransformer(BaseDataTransformer):
 
     def transform(
         self,
-        series: TimeSeries | Sequence[TimeSeries],
+        series: TimeSeriesLike,
         *args,
         component_mask: np.ndarray | None = None,
         series_idx: int | Sequence[int] | None = None,
@@ -301,7 +302,7 @@ class FittableDataTransformer(BaseDataTransformer):
 
     def fit_transform(
         self,
-        series: TimeSeries | Sequence[TimeSeries],
+        series: TimeSeriesLike,
         *args,
         component_mask: np.ndarray | None = None,
         **kwargs,
@@ -322,7 +323,7 @@ class FittableDataTransformer(BaseDataTransformer):
 
         Returns
         -------
-        TimeSeries | Sequence[TimeSeries]
+        TimeSeriesLike
             Transformed data.
         """
         return self.fit(

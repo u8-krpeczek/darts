@@ -11,13 +11,17 @@ but cannot always guarantee backwards compatibility. Changes that may **break co
 
 **Improved**
 
- - Added a `columns` parameter to data transformers to allow specifying a subset of columns to apply the transformation on. [#3023](https://github.com/unit8co/darts/pull/3023) by [Krzsztof Pęczek](https://github.com/u8-krpeczek)
+- 🚀🚀 Added new forecasting model `NeuralForecastModel` to convert any of the 30+ NeuralForecast base model into a Darts `TorchForecastingModel`. This includes models such as NBEATSx, PatchTST, TimeXer, KAN, and many more. Like all Darts torch models, it supports univariate, multivariate, probabilistic forecasting, optimized backtesting and more. Depending on the base model, it also supports past, future, and static covariates. [#3002](https://github.com/unit8co/darts/pull/3002) by [Zhihao Dai](https://github.com/daidahao)
+- Created `darts.typing` to collect typical type annotation in one place. Introduced `TimeIndex` & `TimeSeriesLike` type aliases for improved readability & maintainability of the code. Commmon type annotations can be added to this file in the future. [#3021](https://github.com/unit8co/darts/pull/3021) by [Michel Zeller](https://github.com/mizeller)
+- Added a `columns` parameter to data transformers to allow specifying a subset of columns to apply the transformation on. [#3023](https://github.com/unit8co/darts/pull/3023) by [Krzsztof Pęczek](https://github.com/u8-krpeczek)
 
 **Fixed**
 
 - Updated the restrictive type hint for the timezone parameter `tz` to `Any`. This allows the use of more timezone definitions supported by Pandas [tz_convert](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DatetimeIndex.tz_convert.html). [#3015](https://github.com/unit8co/darts/pull/3015) by [Moritz Waldleben](https://github.com/mwaldleben).
 
 **Dependencies**
+
+- Removed the upper version cap on `scikit-learn<1.8.0` since `catboost` added support in version `1.2.10`. [#3025](https://github.com/unit8co/darts/pull/3025) by [Simon Michau](https://github.com/simonmichau).
 
 ### For developers of the library:
 
