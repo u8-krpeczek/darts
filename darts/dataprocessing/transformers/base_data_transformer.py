@@ -391,6 +391,8 @@ class BaseDataTransformer(ABC):
             total=len(data),
         )
 
+        # This assumes all TimeSeries in the Sequence have the exact same
+        # component names and ordering.
         component_mask = BaseDataTransformer._generate_component_mask(
             series=data[0],
             component_mask=component_mask,
