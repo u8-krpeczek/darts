@@ -116,7 +116,7 @@ class TestBaseDataTransformer:
         assert transformed == expected
         assert test_input == test_input_copy
 
-    @pytest.mark.parametrize("col_names", [["A"], ["B"], ["A", "B"]])
+    @pytest.mark.parametrize("col_names", ["A", None, ["A"], ["B"], ["A", "B"]])
     def test_columns_subset(self, col_names):
         """
         Tests if the `columns` argument correctly applies the transform only to the specified columns.
@@ -131,7 +131,7 @@ class TestBaseDataTransformer:
 
         transformed = mock.transform(test_input)
 
-        if "A" in col_names:
+        if col_names is None or "A" in col_names:
             assert transformed["A"] == constant_timeseries(
                 value=12, length=10, column_name="A"
             )
@@ -140,7 +140,7 @@ class TestBaseDataTransformer:
                 value=1, length=10, column_name="A"
             )
 
-        if "B" in col_names:
+        if col_names is None or "B" in col_names:
             assert transformed["B"] == constant_timeseries(
                 value=14, length=10, column_name="B"
             )
@@ -151,28 +151,62 @@ class TestBaseDataTransformer:
 
         assert test_input == test_input_copy
 
-    def test_columns_default_all(self):
+    def test_columns_validation(self):
         """
-        Tests if all columns are transformed when `columns` is left unspecified (`None`).
+        Tests that string columns are converted to lists, and that
+        passing a contradictory `mask_components=False` and zcolumns` argument raises a ValueError.
+        """
+        mock_string = self.DataTransformerMock(scale=2, translation=2, columns="A")
+        assert mock_string._columns == ["A"]
+
+        with pytest.raises(ValueError) as exc_info:
+            # Should raise a ValueError warning the user that `mask_compoents` needs to be `True`
+            # for the `columns` argument to work.
+            self.DataTransformerMock(
+                scale=2, translation=2, columns=["A"], mask_components=False
+            )
+
+        assert "Contradictory arguments" in str(exc_info.value)
+
+    def test_generate_component_mask(self):
+        """
+        Test if all behaviours of `_generate_component_mask` are correct.
+        That includes raising errors when both `component_mask` and `columns` are provided,
+        when `columns` is `None` the result should be the provided `component_mask`,
+        when a specified column is not in the series, and a valid configuration of `columns` and `component_mask`
         """
         ts_a = constant_timeseries(value=1, length=10, column_name="A")
         ts_b = constant_timeseries(value=2, length=10, column_name="B")
+        ts = ts_a.stack(ts_b)
 
-        test_input = ts_a.stack(ts_b)
-        test_input_copy = test_input.copy()
+        # When both `component_mask` and `columns` are provided
+        with pytest.raises(ValueError) as exc_info:
+            BaseDataTransformer._generate_component_mask(
+                series=ts, component_mask=np.array([True, False]), columns=["A"]
+            )
+        assert "Cannot pass `columns` and `component_mask`" in str(exc_info.value)
 
-        col_names = None
-        mock = self.DataTransformerMock(scale=2, translation=10, columns=col_names)
-
-        transformed = mock.transform(test_input)
-
-        assert transformed["A"] == constant_timeseries(
-            value=12, length=10, column_name="A"
+        # When `columns` is `None` the result should be the provided `component_mask`
+        dummy_mask = np.array([False, True])
+        result = BaseDataTransformer._generate_component_mask(
+            series=ts, component_mask=dummy_mask, columns=None
         )
-        assert transformed["B"] == constant_timeseries(
-            value=14, length=10, column_name="B"
+        np.testing.assert_array_equal(result, dummy_mask)
+
+        # When a specified column is not in the series a `ValueError` should be thrown
+        with pytest.raises(ValueError) as exc_info:
+            BaseDataTransformer._generate_component_mask(
+                series=ts,
+                component_mask=None,
+                columns=["A", "C"],
+            )
+        assert "do not exist in the `TimeSeries` components" in str(exc_info.value)
+
+        # Valid configuration of `columns` and `component_mask`
+        res_happy = BaseDataTransformer._generate_component_mask(
+            series=ts, component_mask=None, columns=["B"]
         )
-        assert test_input == test_input_copy
+        np.testing.assert_array_equal(res_happy, np.array([False, True]))
 
     def test_input_transformed_multiple_series(self):
         """

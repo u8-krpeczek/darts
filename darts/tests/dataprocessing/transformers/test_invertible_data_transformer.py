@@ -177,7 +177,7 @@ class TestInvertibleDataTransformer:
         )
         assert transformed == transformed_copy
 
-    @pytest.mark.parametrize("col_names", [["A"], ["B"], ["A", "B"]])
+    @pytest.mark.parametrize("col_names", ["A", None, ["A"], ["B"], ["A", "B"]])
     def test_columns_subset(self, col_names):
         """
         Tests if the `columns` argument correctly applies the transform
@@ -193,7 +193,7 @@ class TestInvertibleDataTransformer:
 
         transformed = mock.transform(test_input)
 
-        if "A" in col_names:
+        if col_names is None or "A" in col_names:
             assert transformed["A"] == constant_timeseries(
                 value=12, length=10, column_name="A"
             )
@@ -202,7 +202,7 @@ class TestInvertibleDataTransformer:
                 value=1, length=10, column_name="A"
             )
 
-        if "B" in col_names:
+        if col_names is None or "B" in col_names:
             assert transformed["B"] == constant_timeseries(
                 value=14, length=10, column_name="B"
             )
