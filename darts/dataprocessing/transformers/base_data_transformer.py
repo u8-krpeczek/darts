@@ -186,7 +186,8 @@ class BaseDataTransformer(ABC):
                     "Contradictory arguments: `columns` was provided, but `mask_components` "
                     "is set to False. If you want to transform specific columns, "
                     "`mask_components` must be True."
-                )
+                ),
+                logger=logger,
             )
 
     def set_verbose(self, value: bool):
@@ -484,7 +485,8 @@ class BaseDataTransformer(ABC):
             raise_log(
                 ValueError(
                     "Cannot pass `columns` and `component_mask` at the same time."
-                )
+                ),
+                logger=logger,
             )
         if columns is None:
             return component_mask
@@ -495,7 +497,8 @@ class BaseDataTransformer(ABC):
                     f"Columns {set(columns) - set(series.columns)} specified in "
                     f"`columns` do not exist in the `TimeSeries` components: "
                     f"{series.columns}"
-                )
+                ),
+                logger=logger,
             )
         return component_mask
 
