@@ -334,16 +334,11 @@ class InvertibleDataTransformer(BaseDataTransformer):
             total=len(transformer_selector),
         )
 
-        if self._columns is not None and component_mask is not None:
-            raise_log(
-                "You cannot use the `columns` parameter"
-                "and pass a `component_mask` to `inverse_transform()` at the same time."
-            )
-
-        if self._columns is not None:
-            component_mask = BaseDataTransformer._generate_component_mask(
-                data[0], self._columns
-            )
+        component_mask = BaseDataTransformer._generate_component_mask(
+            series=data[0],
+            component_mask=component_mask,
+            columns=self._columns,
+        )
 
         # apply & unapply component masking to the transform method
         kwargs["mask_components"] = self._mask_components

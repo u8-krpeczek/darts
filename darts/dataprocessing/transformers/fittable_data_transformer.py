@@ -263,16 +263,11 @@ class FittableDataTransformer(BaseDataTransformer):
             fit_iterator, verbose=self._verbose, desc=desc, total=n_jobs
         )
 
-        if self._columns is not None and component_mask is not None:
-            raise_log(
-                "You cannot use the `columns` parameter"
-                "and pass a `component_mask` to `fit()` at the same time."
-            )
-
-        if self._columns is not None:
-            component_mask = BaseDataTransformer._generate_component_mask(
-                data[0], self._columns
-            )
+        component_mask = BaseDataTransformer._generate_component_mask(
+            series=data[0],
+            component_mask=component_mask,
+            columns=self._columns,
+        )
 
         # apply component masking to the fit method
         kwargs["mask_components"] = self._mask_components

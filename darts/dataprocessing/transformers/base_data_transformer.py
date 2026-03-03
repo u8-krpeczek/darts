@@ -378,18 +378,11 @@ class BaseDataTransformer(ABC):
             total=len(data),
         )
 
-        if self._columns is not None and component_mask is not None:
-            raise_log(
-                ValueError(
-                    "You cannot use the `columns` parameter"
-                    "and pass a `component_mask` to `transform()` at the same time."
-                )
-            )
-
-        if self._columns is not None:
-            component_mask = BaseDataTransformer._generate_component_mask(
-                data[0], self._columns
-            )
+        component_mask = BaseDataTransformer._generate_component_mask(
+            series=data[0],
+            component_mask=component_mask,
+            columns=self._columns,
+        )
 
         # apply & unapply component masking to the transform method
         kwargs["mask_components"] = self._mask_components
@@ -470,29 +463,29 @@ class BaseDataTransformer(ABC):
 
     @staticmethod
     def _generate_component_mask(
-        series: TimeSeries, columns: str | list[str] | None
+        series: TimeSeries,
+        component_mask: np.ndarray | None,
+        columns: list[str] | None,
     ) -> np.ndarray | None:
-        """
-        Translates the `self._columns` list into a boolean numpy array mask.
-        """
-        if columns is None:
-            return None
-
-        mask = np.zeros(series.n_components, dtype=bool)
-        series_components = series.components.tolist()
-
-        for col in columns:
-            if col not in series_components:
-                raise_log(
-                    ValueError(
-                        f"Column '{col}' specified in `columns` was not found in the "
-                        f"TimeSeries components: {series_components}"
-                    )
+        """Returns the existing `component_mask` or generates a new component mask based on `columns`."""
+        if columns is not None and component_mask is not None:
+            raise_log(
+                ValueError(
+                    "Cannot pass `columns` and `component_mask` at the same time."
                 )
-            idx = series_components.index(col)
-            mask[idx] = True
-
-        return mask
+            )
+        if columns is None:
+            return component_mask
+        component_mask = series.columns.isin(columns)
+        if component_mask.sum() != len(columns):
+            raise_log(
+                ValueError(
+                    f"Columns {set(columns) - set(series.columns)} specified in "
+                    f"`columns` do not exist in the `TimeSeries` components: "
+                    f"{series.columns}"
+                )
+            )
+        return component_mask
 
     @staticmethod
     def apply_component_mask(
