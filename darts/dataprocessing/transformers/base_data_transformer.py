@@ -177,9 +177,11 @@ class BaseDataTransformer(ABC):
         self._columns = [columns] if isinstance(columns, str) else columns
         if self._columns is not None and not self._mask_components:
             raise_log(
-                "Contradictory arguments: `columns` was provided, but `mask_components` "
-                "is set to False. If you want to transform specific columns, "
-                "`mask_components` must be True."
+                ValueError(
+                    "Contradictory arguments: `columns` was provided, but `mask_components` "
+                    "is set to False. If you want to transform specific columns, "
+                    "`mask_components` must be True."
+                )
             )
 
     def set_verbose(self, value: bool):
@@ -378,8 +380,10 @@ class BaseDataTransformer(ABC):
 
         if self._columns is not None and component_mask is not None:
             raise_log(
-                "You cannot use the `columns` parameter"
-                "and pass a `component_mask` to `transform()` at the same time."
+                ValueError(
+                    "You cannot use the `columns` parameter"
+                    "and pass a `component_mask` to `transform()` at the same time."
+                )
             )
 
         if self._columns is not None:
@@ -480,8 +484,10 @@ class BaseDataTransformer(ABC):
         for col in columns:
             if col not in series_components:
                 raise_log(
-                    f"Column '{col}' specified in `columns` was not found in the "
-                    f"TimeSeries components: {series_components}"
+                    ValueError(
+                        f"Column '{col}' specified in `columns` was not found in the "
+                        f"TimeSeries components: {series_components}"
+                    )
                 )
             idx = series_components.index(col)
             mask[idx] = True
