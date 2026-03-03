@@ -126,6 +126,11 @@ class BaseDataTransformer(ABC):
             'unmasked' in the returned `TimeSeries`. If `False`, then `component_mask` (if provided) will
             be passed as a keyword argument, but won't automatically be applied to the input timeseries.
             See `apply_component_mask` for further details.
+        columns
+            Optionally, a string or list of strings specifying the names of the components (columns)
+            to transform. If specified, only these components will be transformed, and the remaining
+            components will be kept untouched. If `None`, all components are transformed. Note that
+            if `columns` is provided, the `mask_components` attribute must be set to `True`.
 
         Example
         --------
@@ -342,6 +347,13 @@ class BaseDataTransformer(ABC):
         to the output. Note that automatic `component_mask`ing can only be performed if the `ts_transform`
         does *not* change the number of timesteps in each series; if this were to happen, then the transformed
         and untransformed components are unable to be concatenated back together along the component axis.
+
+        If `mask_components` was set to `False` when instantiating `BaseDataTransformer`, then any provided
+        `component_masks` will be passed as a keyword argument `ts_transform`; the user can then manually specify
+        how the `component_mask` should be applied to each series.
+
+        Alternatively, if the `columns` parameter was specified when instantiating the transformer,
+        the `component_mask` is automatically generated to target only the specified column names.
 
         If `mask_components` was set to `False` when instantiating `BaseDataTransformer`, then any provided
         `component_masks` will be passed as a keyword argument `ts_transform`; the user can then manually specify
