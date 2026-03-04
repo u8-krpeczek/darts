@@ -28,7 +28,6 @@ class Diff(FittableDataTransformer, InvertibleDataTransformer):
         name: str = "Diff",
         n_jobs: int = 1,
         verbose: bool = False,
-        columns: str | list[str] | None = None,
     ):
         r"""Differencing data transformer.
 
@@ -116,7 +115,6 @@ class Diff(FittableDataTransformer, InvertibleDataTransformer):
             n_jobs=n_jobs,
             verbose=verbose,
             mask_components=False,
-            columns=columns,
         )
 
     @staticmethod
