@@ -75,6 +75,11 @@ class Scaler(FittableDataTransformer, InvertibleDataTransformer):
             required amount of time.
         verbose
             Optionally, whether to print operations progress
+        columns
+            Optionally, a string or list of strings specifying the names of the components (columns)
+            to transform. If specified, only these components will be transformed, and the remaining
+            components will be kept untouched. For more information refer to the `BaseDataTransformer`
+            documentation.
 
         Notes
         -----
